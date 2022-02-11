@@ -1,15 +1,19 @@
-;;; navigate.el --- Seamlessly navigate between Emacs and tmux
+;;; navigate.el --- Seamlessly navigate between Emacs and kitty
 
-;; Author:   Keith Smiley <keithbsmiley@gmail.com>
-;; Created:  April 25 2014
+;; Author: Guilherme Zagatti
+;; Created:  Feb 11 2021
 ;; Version:  0.1.5
-;; Keywords: tmux, evil, vi, vim
+;; Keywords: kitty, evil, vi, vim
+;; 
+;; Based on evil-tmux-navigator 
+;; from Keith Smiley <keithbsmiley@gmail.com>
 
 ;;; Commentary:
 
-;; This package is inspired by vim-tmux-navigator.
+;; This package is inspired by
+;; vim-kitty-navigator and evil-tmux-navigator.
 ;; It allows you to navigate splits in evil mode
-;; Along with tmux splits with the same commands
+;; along with kitty splits with the same commands
 ;; Include with:
 ;;
 ;;    (require 'navigate)
@@ -20,7 +24,7 @@
 (require 'evil)
 
 (defgroup navigate nil
-  "seamlessly navigate between Emacs and tmux"
+  "seamlessly navigate between Emacs and kitty"
   :prefix "navigate-"
   :group 'evil)
 
@@ -31,43 +35,48 @@
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
-(defun tmux-navigate (direction)
+(defun kitty-navigate (direction)
   (let
     ((cmd (concat "windmove-" direction)))
       (condition-case nil
           (funcall (read cmd))
         (error
-          (tmux-command direction)))))
+          (kitty-command direction)))))
 
-(defun tmux-command (direction)
+(defun kitty-command (direction)
   (shell-command-to-string
-    (concat "tmux select-pane -"
-      (tmux-direction direction))))
+    (concat "kitty @ kitten neighboring_window.py "
+      (kitty-direction direction))))
 
-(defun tmux-direction (direction)
-  (upcase
-    (substring direction 0 1)))
+(setq kitty-emacs-table (make-hash-table :test 'equal))
+(setf (gethash "left" kitty-emacs-table) "left")
+(setf (gethash "down" kitty-emacs-table) "bottom")
+(setf (gethash "up" kitty-emacs-table) "top")
+(setf (gethash "right" kitty-emacs-table) "right")
+
+(defun kitty-direction (direction)
+  (gethash direction kitty-emacs-table))
 
 (define-key evil-normal-state-map
             (kbd "C-h")
             (lambda ()
               (interactive)
-              (tmux-navigate "left")))
+              (kitty-navigate "left")))
 (define-key evil-normal-state-map
             (kbd "C-j")
             (lambda ()
               (interactive)
-              (tmux-navigate "down")))
+              (kitty-navigate "down")))
 (define-key evil-normal-state-map
             (kbd "C-k")
             (lambda ()
               (interactive)
-              (tmux-navigate "up")))
+              (kitty-navigate "up")))
 (define-key evil-normal-state-map
             (kbd "C-l")
             (lambda ()
               (interactive)
-              (tmux-navigate "right")))
+              (kitty-navigate "right")))
 
 (provide 'navigate)
 
