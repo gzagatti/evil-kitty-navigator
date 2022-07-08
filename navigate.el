@@ -44,9 +44,13 @@
           (kitty-command direction)))))
 
 (defun kitty-command (direction)
-  (shell-command-to-string
-    (concat "kitty @ kitten neighboring_window.py "
-      (kitty-direction direction))))
+  ; the shell command expects an existing buffer directory which is
+  ; not always true; since the command is not directory specific we bind
+  ; ~default-directory~ to a temporary one.
+  (let ((default-directory (temporary-file-directory)))
+    (shell-command-to-string
+      (concat "kitty @ kitten neighboring_window.py "
+        (kitty-direction direction)))))
 
 (setq kitty-emacs-table (make-hash-table :test 'equal))
 (setf (gethash "left" kitty-emacs-table) "left")
