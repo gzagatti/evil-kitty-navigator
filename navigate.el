@@ -4,8 +4,8 @@
 ;; Created:  Feb 11 2021
 ;; Version:  0.1.5
 ;; Keywords: kitty, evil, vi, vim
-;; 
-;; Based on evil-tmux-navigator 
+;;
+;; Based on evil-tmux-navigator
 ;; from Keith Smiley <keithbsmiley@gmail.com>
 
 ;;; Commentary:
